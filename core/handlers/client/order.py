@@ -21,16 +21,19 @@ async def read_order(callback:CallbackQuery):
     if order:
         await callback.message.answer("Ваш заказ")
         await callback.message.answer(f"Номер заказа: {str(callback.from_user.id%10000)}")
-        await callback.answer("\n".join([f"{key} - {value}"for key,value in order.items()]))
-        await callback.message.answer(reply_markup=keyboard.main)
+        await callback.message.answer("\n".join([f"{key} - {value}"for key,value in order.items()]),reply_markup=keyboard.main)
+    
     else:
         print("error")
         await callback.message.answer("У вас нет заказов", reply_markup=keyboard.main)
         
 
 
-@order.callback_query(F.data == "cancel")
+@order.callback_query(F.data == "cancel_order")
 async def drop_order(callback:CallbackQuery):
     await callback.answer("")
-    await Database.Order().delete_order(callback.from_user.id)
-    await callback.message.answer("Ваш заказ удален", reply_markup=keyboard.main)
+    order=await Database.Order().delete_order(callback.from_user.id)
+    if order:
+        await callback.message.answer("Ваш заказ удален", reply_markup=keyboard.main)
+    else:
+        await callback.message.answer("У вас нет заказа", reply_markup=keyboard.main)

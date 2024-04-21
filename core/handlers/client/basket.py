@@ -22,7 +22,6 @@ basket = Router()
 async def read_basket(callback:CallbackQuery):
     await callback.answer("")
     basket =  await Database.Basket().read(callback.from_user.id)
-    print(basket)
     if basket is not None:
         await callback.message.answer("\n".join([f"{key} - {value}"for key,value in basket.items()]),reply_markup=keyboard.basket)
     else: 

@@ -68,26 +68,25 @@ class Order(Base):
         self.collection.replace_one(filter={"Статус":"Открыт","id":data.get("id")},replacement=data,upsert=True)
     
     async def get_order(self,user_id):
-        return self.collection.find_one(filter={"Статус":"Открыт","id":user_id},projection={"Статус":False,"id":False, "_id":0})
-# """,projection={"Статус":"Открыт","id":0, "_id":0}"""
+        return self.collection.find_one(filter={"Статус":"Открыт","id":int(user_id)},projection={"Статус":False,"id":False, "_id":False})
     async def delete_order(self,user_id):
         self.collection.delete_one(filter={"Статус":"Открыт","id":user_id})
   
-    # async def get_order(self,user_id:str)->list:
-    #     result=[]
-    #     order = self.collection.find(filter={"Статус":"Открыт","id":{"$regex":f".*{user_id}$"}},projection={"_id":0})
-    #     for doc in order:
-    #         result.append(doc)
-    #     return result
+    async def get_all_open(self,user_id:str)->list:
+        result=[]
+        order = self.collection.find(filter={"Статус":"Открыт",'id':int(user_id)},projection={"_id":False})
+        for doc in order:
+            result.append(doc)
+        return result
     
-    async def get_order_open(self) -> list:
+    async def get_all_orders_open(self) -> list:
         results = []
         for doc in self.collection.find(filter={"Статус":"Открыт"},projection={'_id':False}):
             results.append(doc)
         return results
     
     async def delete_order_close(self) -> int:
-        return self.collection.delete_many(filter={"Статус":"Закрыт"},projection={'_id':False})
+        return self.collection.delete_many(filter={"Статус":"Закрыт"})
   
     
 class Basket(Base):
@@ -106,3 +105,10 @@ class Basket(Base):
         if a is not None:
             data.update(a)
         self.collection.replace_one(filter={"id":data.get("id")},replacement=data,upsert=True)
+
+class Client(Base):
+    def __init__(self):
+        super().__init__("client")
+    
+    async def add(self,user_id:int):
+        self.collection.replace_one(filter={"id":user_id},replacement={'id':user_id},upsert=True)

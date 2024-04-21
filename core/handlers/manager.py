@@ -30,15 +30,16 @@ class ManagerProtect(Filter):
         
 
 
-@manager.callback_query(ManagerProtect(), Command("manager"))
+@manager.message(ManagerProtect(),Command('manager'))
 async def manager_menu(message:Message):
+    print('asdf')
     await message.answer("Главное меню",reply_markup=keyboard.manager)
 
 # Создаем таблицу
 @manager.callback_query(ManagerProtect(), F.data == "create_table")
 async def create_table(callback:CallbackQuery):
     callback.answer("")
-    orders = await Database.Order().get_order_open()
+    orders = await Database.Order().get_all_orders_open()
     if orders:
         df=pd.DataFrame(orders, columns=['id',"Сметана","Творог","Молоко","Брынза","Сливки", 'name', 'time','data'])
         total=df[["Сметана","Творог","Молоко","Брынза","Сливки"]].sum().to_frame().T
@@ -65,7 +66,7 @@ async def change_order(callback:CallbackQuery,state:FSMContext):
 # Получаем id 
 @manager.message(ManagerProtect(), Order.id)
 async def search_order(message:Message,state:FSMContext):
-    order = await Database.Order().get_order(message.text)
+    order = await Database.Order().get_all_open(message.text)
     if len(order) == 1:
         order = order[0]
         order["Статус"]="Закрыт"
@@ -83,7 +84,7 @@ async def search_order(message:Message,state:FSMContext):
 async def delete_order_close(callback:CallbackQuery):
     await callback.answer("")
     count = await Database.Order().delete_order_close()
-    await callback.answer(f"Удалено {count} заказов")
+    await callback.message.answer(f"Удалено {count.deleted_count} заказов")
 
 
 
@@ -98,7 +99,7 @@ async def message(callback:CallbackQuery,state:FSMContext):
 
 @manager.message(ManagerProtect(), Order.message)
 async def send_message(message:Message,state:FSMContext):
-    open = await Database.Order().get_order_open()
+    open = await Database.Order().get_all_orders_open()
     open=[int(d["id"])for d in open]
     for user_id in open:
         await message.bot.send_message(user_id,message.text)

@@ -16,12 +16,16 @@ class Manager(StatesGroup):
     name = State()
 
 
+
+    
+
+
 class Admin_protect(Filter):
     async def __call__(self,event):
         if isinstance(event,Message):
-            return event.from_user.id == str(ADMIN_ID)
+            return event.from_user.id == int(ADMIN_ID)     
         if isinstance(event,CallbackQuery):
-            return event.from_user.id == str(ADMIN_ID)
+            return event.from_user.id == int(ADMIN_ID)
     
     
 
@@ -44,10 +48,10 @@ async def name_manager(message:Message, state:FSMContext):
 
 @admin.message(Admin_protect(),Manager.id)
 async def id_manager(message:Message, state:FSMContext):
-    manager = await state.update_data(id=message.text)
+    manager = await state.update_data(id=int(message.text))
     await state.clear()
     await Database.Manager().add(manager)
-    await message.answer("Менеджер добавлен", replay_markup=keyboard.admin)
+    await message.answer("Менеджер добавлен", reply_markup=keyboard.admin)
 
 
 @admin.callback_query(Admin_protect(),F.data =="drop_manager")
