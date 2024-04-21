@@ -8,8 +8,8 @@
 # MANAGER_ID=""
 import os
 from dotenv import load_dotenv
-print(load_dotenv())
+# print(load_dotenv())
 TOKEN=os.getenv("TOKEN")
 DATEBASE=os.getenv("DATABASE")
 ADMIN_ID=os.getenv("ADMIN_ID")
-print(ADMIN_ID)
+# print(ADMIN_ID)

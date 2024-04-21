@@ -1,14 +1,11 @@
-from typing import Any
 from aiogram import F, Router
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message,FSInputFile
 from aiogram.filters import Command, Filter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State,StatesGroup
 from core import keyboard
 from core.database import Database
-from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
-from io import BytesIO
+import pandas as pd
 manager = Router()
 
 
@@ -42,29 +39,19 @@ async def manager_menu(message:Message):
 async def create_table(callback:CallbackQuery):
     callback.answer("")
     orders = await Database.Order().get_order_open()
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Заказы"
-    keys = set()
-    for order in orders:
-        keys.update(order.keys())
-    keys = list(keys)
-    for col, title in enumerate(keys,1):
-        ws.cell(row=1,column=col,value=title)
-    row=2   
-    for order in orders:
-        for key, value, in order.items():
-            ws.cell(row=row,column=keys.index(key)+1,value=value)
-            row+=1
-    product=await Database.Product.get_all()
-    index=[keys.index(i) for i in product if i in keys]
-    for col in index:
-        formula=f"=SUM({get_column_letter(col)}2:{get_column_letter(col)}{(row-1)})"
-        ws.cell(row=row,column=col,value=formula)
-    table=BytesIO
-    wb.save(table)
-    await callback.message.answer(document=BytesIO(table.getvalue()),filename="data.xlsx",replay_markup=keyboard.manager)
-    table.close()
+    if orders:
+        df=pd.DataFrame(orders, columns=['id',"Сметана","Творог","Молоко","Брынза","Сливки", 'name', 'time','data'])
+        total=df[["Сметана","Творог","Молоко","Брынза","Сливки"]].sum().to_frame().T
+        df=pd.concat([df,total],ignore_index=False)
+        df.to_excel('data.xlsx',index=False)
+        file=FSInputFile(path='data.xlsx')
+        await callback.message.answer_document(document=file,reply_markup=keyboard.manager)
+
+    else:
+        await callback.message.answer("Нет заказов")
+     
+    
+    
 
 
 

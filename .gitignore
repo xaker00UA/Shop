@@ -1,5 +1,9 @@
 .env
---pycache__
+__pycache__/
 venv
 start.bat
 test.py
+vscode
+test
+data.xlsx
+

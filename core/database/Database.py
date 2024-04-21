@@ -68,7 +68,7 @@ class Order(Base):
         self.collection.replace_one(filter={"Статус":"Открыт","id":data.get("id")},replacement=data,upsert=True)
     
     async def get_order(self,user_id):
-        return self.collection.find_one(filter={"Статус":"Открыт","id":user_id},projection={"Статус":"Открыт","id":False, "_id":0})
+        return self.collection.find_one(filter={"Статус":"Открыт","id":user_id},projection={"Статус":False,"id":False, "_id":0})
 # """,projection={"Статус":"Открыт","id":0, "_id":0}"""
     async def delete_order(self,user_id):
         self.collection.delete_one(filter={"Статус":"Открыт","id":user_id})

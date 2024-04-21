@@ -56,6 +56,6 @@ async def order(callback:CallbackQuery):
 async def quantity(callback:CallbackQuery):
     await callback.answer("")
     product = callback.data.split("_")[1]
-    quantity = callback.data.split("_")[2]
+    quantity = int(callback.data.split("_")[2])
     await Database.Basket().add({"id":callback.from_user.id,product:quantity})
     await callback.message.answer("Товар добавлен в корзину",reply_markup=await keyboard.product())

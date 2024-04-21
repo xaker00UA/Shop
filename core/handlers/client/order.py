@@ -19,7 +19,6 @@ async def read_order(callback:CallbackQuery):
     await callback.answer("")
     order = await Database.Order().get_order(callback.from_user.id)
     if order:
-        print(order)
         await callback.message.answer("Ваш заказ")
         await callback.message.answer(f"Номер заказа: {str(callback.from_user.id%10000)}")
         await callback.answer("\n".join([f"{key} - {value}"for key,value in order.items()]))
