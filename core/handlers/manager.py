@@ -94,7 +94,7 @@ async def delete_order_close(callback:CallbackQuery):
 @manager.callback_query(ManagerProtect(), F.data == "write_order_open")
 async def message(callback:CallbackQuery,state:FSMContext):
     await callback.answer("")
-    state.set_state(Order.message)
+    await state.set_state(Order.message)
     await callback.message.answer("Введите сообщение")
 
 @manager.message(ManagerProtect(), Order.message)
@@ -104,7 +104,7 @@ async def send_message(message:Message,state:FSMContext):
     for user_id in open:
         await message.bot.send_message(user_id,message.text)
     await message.answer("Рассылка завершена")
-    state.clear()
+    await state.clear()
 
 
 @manager.callback_query(ManagerProtect(), F.data == "")
